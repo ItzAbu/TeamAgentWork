@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionale di Magazzino</title>
+    <!-- Tailwind CSS CDN for modern UI design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+                <h1 class="text-2xl font-bold tracking-tight">MagazzinoPro</h1>
+            </div>
+            <!-- Navigation Tabs -->
+            <nav class="flex flex-wrap gap-2" id="nav-tabs">
+                <button onclick="switchTab('dashboard')" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition bg-blue-600 text-white shadow" data-tab="dashboard">
+                    Dashboard
+                </button>
+                <button onclick="switchTab('giacenze')" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white" data-tab="giacenze">
+                    Giacenze
+                </button>
+                <button onclick="switchTab('prodotti')" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white" data-tab="prodotti">
+                    Prodotti
+                </button>
+                <button onclick="switchTab('movimenti')" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white" data-tab="movimenti">
+                    Movimenti
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
+
+        <!-- Global Alert Banner -->
+        <div id="alert-banner" class="hidden mb-6 p-4 rounded-lg border flex items-center justify-between shadow-sm">
+            <span id="alert-message" class="text-sm font-medium"></span>
+            <button onclick="hideAlert()" class="text-lg font-bold">&times;</button>
+        </div>
+
+        <!-- ==================== TAB: DASHBOARD ==================== -->
+        <section id="tab-dashboard" class="tab-content space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-slate-900">Dashboard & KPI</h2>
+                <button onclick="loadData()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-md text-sm font-medium transition flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Aggiorna
+                </button>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Totale Prodotti</p>
+                        <p id="kpi-totale-prodotti" class="text-3xl font-extrabold text-slate-900 mt-1">-</p>
+                    </div>
+                    <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Articoli Sotto Scorta</p>
+                        <p id="kpi-sotto-scorta" class="text-3xl font-extrabold text-red-600 mt-1">-</p>
+                    </div>
+                    <div class="p-3 bg-red-50 text-red-600 rounded-xl">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Movimenti Registrati</p>
+                        <p id="kpi-movimenti" class="text-3xl font-extrabold text-slate-900 mt-1">-</p>
+                    </div>
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action & Alert Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Sotto scorta quick list -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-red-500"></span> Prodotti Sotto Scorta
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b text-xs font-semibold text-slate-500 uppercase bg-slate-50">
+                                    <th class="py-3 px-3">SKU</th>
+                                    <th class="py-3 px-3">Prodotto</th>
+                                    <th class="py-3 px-3 text-right">Giacenza</th>
+                                    <th class="py-3 px-3 text-right">Scorta Min.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-sotto-scorta-table" class="divide-y text-sm">
+                                <tr><td colspan="4" class="py-4 text-center text-slate-400">Nessun articolo sotto scorta o caricamento...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Quick Movement Form -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="text-lg font-bold text-slate-900 mb-4">Nuovo Movimento Rapido</h3>
+                    <form id="quick-movimento-form" onsubmit="handleQuickMovimento(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Prodotto</label>
+                            <select id="quick-prodotto_id" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Seleziona prodotto...</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tipo Operazione</label>
+                                <select id="quick-tipo" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="CARICO">CARICO (+)</option>
+                                    <option value="SCARICO">SCARICO (-)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Quantità</label>
+                                <input type="number" id="quick-quantita" min="1" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Es. 10">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Causale</label>
+                            <input type="text" id="quick-causale" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Es. Rifornimento / Vendita">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition shadow-sm text-sm">
+                            Registra Movimento
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB: GIACENZE ==================== -->
+        <section id="tab-giacenze" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h2 class="text-2xl font-bold text-slate-900">Giacenze Magazzino</h2>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <input type="text" id="search-giacenze" oninput="filterGiacenze()" placeholder="Cerca prodotto o SKU..." class="border border-slate-300 rounded-lg px-3 py-2 text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="loadGiacenze()" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-sm font-medium transition">Aggiorna</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 border-b text-xs font-semibold text-slate-600 uppercase">
+                                <th class="py-3 px-4">SKU</th>
+                                <th class="py-3 px-4">Nome Prodotto</th>
+                                <th class="py-3 px-4 text-right">Giacenza Attuale</th>
+                                <th class="py-3 px-4 text-right">Scorta Minima</th>
+                                <th class="py-3 px-4 text-center">Stato</th>
+                                <th class="py-3 px-4 text-center">Azioni Rapide</th>
+                            </tr>
+                        </thead>
+                        <tbody id="giacenze-table-body" class="divide-y text-sm">
+                            <tr><td colspan="6" class="py-6 text-center text-slate-400">Caricamento giacenze...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB: PRODOTTI ==================== -->
+        <section id="tab-prodotti" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h2 class="text-2xl font-bold text-slate-900">Anagrafica Prodotti</h2>
+                <button onclick="openNewProductModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition shadow-sm text-sm flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Nuovo Prodotto
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 border-b text-xs font-semibold text-slate-600 uppercase">
+                                <th class="py-3 px-4">ID</th>
+                                <th class="py-3 px-4">SKU</th>
+                                <th class="py-3 px-4">Nome</th>
+                                <th class="py-3 px-4">Descrizione</th>
+                                <th class="py-3 px-4 text-right">Prezzo (€)</th>
+                                <th class="py-3 px-4 text-right">Scorta Min.</th>
+                                <th class="py-3 px-4 text-center">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prodotti-table-body" class="divide-y text-sm">
+                            <tr><td colspan="7" class="py-6 text-center text-slate-400">Caricamento prodotti...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB: MOVIMENTI ==================== -->
+        <section id="tab-movimenti" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h2 class="text-2xl font-bold text-slate-900">Storico Movimenti</h2>
+                <button onclick="openNewMovimentoModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition shadow-sm text-sm flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Registra Movimento
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 border-b text-xs font-semibold text-slate-600 uppercase">
+                                <th class="py-3 px-4">ID</th>
+                                <th class="py-3 px-4">Data / Ora</th>
+                                <th class="py-3 px-4">SKU</th>
+                                <th class="py-3 px-4">Prodotto</th>
+                                <th class="py-3 px-4">Tipo</th>
+                                <th class="py-3 px-4 text-right">Quantità</th>
+                                <th class="py-3 px-4">Causale</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movimenti-table-body" class="divide-y text-sm">
+                            <tr><td colspan="7" class="py-6 text-center text-slate-400">Caricamento movimenti...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-500">
+        <p>MagazzinoPro &copy; 2025 &bull; Gestione Magazzino Flask &amp; SQLite</p>
+    </footer>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- Modal: Nuovo Prodotto -->
+    <div id="modal-prodotto" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 space-y-6">
+            <div class="flex justify-between items-center border-b pb-4">
+                <h3 class="text-xl font-bold text-slate-900">Aggiungi Nuovo Prodotto</h3>
+                <button onclick="closeNewProductModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            <form id="form-prodotto" onsubmit="handleCreateProdotto(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">SKU *</label>
+                        <input type="text" id="prod-sku" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Es. ART-001">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nome *</label>
+                        <input type="text" id="prod-nome" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Nome articolo">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Descrizione</label>
+                    <textarea id="prod-descrizione" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Descrizione dettagliata..."></textarea>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Prezzo (€) *</label>
+                        <input type="number" step="0.01" min="0" id="prod-prezzo" value="0.00" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Scorta Minima *</label>
+                        <input type="number" min="0" id="prod-scorta" value="0" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t">
+                    <button type="button" onclick="closeNewProductModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-sm font-medium transition">Annulla</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition shadow-sm">Salva Prodotto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Nuovo Movimento -->
+    <div id="modal-movimento" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 space-y-6">
+            <div class="flex justify-between items-center border-b pb-4">
+                <h3 class="text-xl font-bold text-slate-900">Registra Movimento Magazzino</h3>
+                <button onclick="closeNewMovimentoModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            <form id="form-movimento" onsubmit="handleCreateMovimento(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Prodotto *</label>
+                    <select id="mov-prodotto_id" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <option value="">Seleziona prodotto...</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tipo Operazione *</label>
+                        <select id="mov-tipo" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="CARICO">CARICO (+)</option>
+                            <option value="SCARICO">SCARICO (-)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Quantità *</label>
+                        <input type="number" min="1" id="mov-quantita" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Es. 5">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Causale</label>
+                    <input type="text" id="mov-causale" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Motivazione (es. Vendita ordine #123)">
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t">
+                    <button type="button" onclick="closeNewMovimentoModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-sm font-medium transition">Annulla</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition shadow-sm">Registra Movimento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script>
+        // Global state storage
+        let allGiacenze = [];
+        let allProdotti = [];
+
+        // Initialization on DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+        });
+
+        // Tab Navigation Switcher
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white', 'shadow');
+                btn.classList.add('bg-slate-800', 'text-slate-300', 'hover:bg-slate-700', 'hover:text-white');
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-slate-800', 'text-slate-300', 'hover:bg-slate-700', 'hover:text-white');
+                activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow');
+            }
+
+            // Refresh tab specific data if needed
+            if (tabName === 'dashboard') loadDashboard();
+            if (tabName === 'giacenze') loadGiacenze();
+            if (tabName === 'prodotti') loadProdotti();
+            if (tabName === 'movimenti') loadMovimenti();
+        }
+
+        // Alert helper
+        function showAlert(message, type = 'success') {
+            const banner = document.getElementById('alert-banner');
+            const msgEl = document.getElementById('alert-message');
+            msgEl.textContent = message;
+            
+            banner.className = `mb-6 p-4 rounded-lg border flex items-center justify-between shadow-sm ${
+                type === 'success' 
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
+                    : 'bg-red-50 border-red-200 text-red-800'
+            }`;
+            banner.classList.remove('hidden');
+            setTimeout(hideAlert, 5000);
+        }
+
+        function hideAlert() {
+            document.getElementById('alert-banner').classList.add('hidden');
+        }
+
+        // Load all primary data for app sync
+        async function loadData() {
+            await Promise.all([
+                loadDashboard(),
+                loadProdottiSelects()
+            ]);
+        }
+
+        // 1. Dashboard Load
+        async function loadDashboard() {
+            try {
+                const [dashRes, giacenzeRes, movRes] = await Promise.all([
+                    fetch('/api/dashboard'),
+                    fetch('/api/giacenze'),
+                    fetch('/api/movimenti')
+                ]);
+
+                if (!dashRes.ok || !giacenzeRes.ok) throw new Error('Errore nel caricamento dei dati dashboard');
+
+                const dashData = await dashRes.json();
+                const giacenzeData = await giacenzeRes.json();
+                const movData = await movRes.json();
+
+                // Update KPI UI
+                document.getElementById('kpi-totale-prodotti').textContent = dashData.totale_prodotti;
+                document.getElementById('kpi-sotto-scorta').textContent = dashData.articoli_sotto_scorta;
+                document.getElementById('kpi-movimenti').textContent = movData.length;
+
+                // Populate sotto-scorta table on dashboard
+                const sottoScortaList = giacenzeData.filter(item => item.sotto_scorta);
+                const tbody = document.getElementById('dashboard-sotto-scorta-table');
+                
+                if (sottoScortaList.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-400">Nessun prodotto sotto scorta. Ottimo!</td></tr>`;
+                } else {
+                    tbody.innerHTML = sottoScortaList.map(item => `
+                        <tr class="hover:bg-slate-50">
+                            <td class="py-3 px-3 font-mono font-semibold text-slate-700">${escapeHtml(item.sku)}</td>
+                            <td class="py-3 px-3 font-medium text-slate-900">${escapeHtml(item.nome)}</td>
+                            <td class="py-3 px-3 text-right font-bold text-red-600">${item.giacenza_attuale}</td>
+                            <td class="py-3 px-3 text-right text-slate-500">${item.scorta_minima}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error(err);
+                showAlert('Impossibile comunicare con il server API', 'error');
+            }
+        }
+
+        // 2. Giacenze Load & Filter
+        async function loadGiacenze() {
+            try {
+                const res = await fetch('/api/giacenze');
+                if (!res.ok) throw new Error('Errore caricamento giacenze');
+                allGiacenze = await res.json();
+                renderGiacenze(allGiacenze);
+            } catch (err) {
+                console.error(err);
+                showAlert('Errore nel recupero delle giacenze', 'error');
+            }
+        }
+
+        function renderGiacenze(data) {
+            const tbody = document.getElementById('giacenze-table-body');
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">Nessun prodotto registrato in magazzino.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.map(item => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-3 px-4 font-mono font-semibold text-slate-700">${escapeHtml(item.sku)}</td>
+                    <td class="py-3 px-4 font-medium text-slate-900">${escapeHtml(item.nome)}</td>
+                    <td class="py-3 px-4 text-right font-bold ${item.sotto_scorta ? 'text-red-600' : 'text-slate-800'}">${item.giacenza_attuale}</td>
+                    <td class="py-3 px-4 text-right text-slate-500">${item.scorta_minima}</td>
+                    <td class="py-3 px-4 text-center">
+                        ${item.sotto_scorta 
+                            ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">Sotto Scorta</span>' 
+                            : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Regolare</span>'}
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="inline-flex gap-2">
+                            <button onclick="quickActionModal(${item.prodotto_id}, 'CARICO')" title="Carico rapido" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            </button>
+                            <button onclick="quickActionModal(${item.prodotto_id}, 'SCARICO')" title="Scarico rapido" class="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-md transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterGiacenze() {
+            const query = document.getElementById('search-giacenze').value.toLowerCase();
+            const filtered = allGiacenze.filter(item => 
+                item.nome.toLowerCase().includes(query) || item.sku.toLowerCase().includes(query)
+            );
+            renderGiacenze(filtered);
+        }
+
+        // 3. Prodotti Load & Management
+        async function loadProdotti() {
+            try {
+                const res = await fetch('/api/prodotti');
+                if (!res.ok) throw new Error('Errore caricamento prodotti');
+                allProdotti = await res.json();
+                
+                const tbody = document.getElementById('prodotti-table-body');
+                if (allProdotti.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400">Nessun prodotto in anagrafica.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = allProdotti.map(prod => `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 text-slate-500">#${prod.id}</td>
+                        <td class="py-3 px-4 font-mono font-semibold text-slate-700">${escapeHtml(prod.sku)}</td>
+                        <td class="py-3 px-4 font-medium text-slate-900">${escapeHtml(prod.nome)}</td>
+                        <td class="py-3 px-4 text-slate-500 truncate max-w-xs">${escapeHtml(prod.descrizione || '-')}</td>
+                        <td class="py-3 px-4 text-right font-medium text-slate-700">€ ${Number(prod.prezzo).toFixed(2)}</td>
+                        <td class="py-3 px-4 text-right text-slate-500">${prod.scorta_minima}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="deleteProdotto(${prod.id})" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-md transition" title="Elimina prodotto">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+                showAlert('Errore nel recupero dei prodotti', 'error');
+            }
+        }
+
+        async function loadProdottiSelects() {
+            try {
+                const res = await fetch('/api/prodotti');
+                if (!res.ok) return;
+                const prodotti = await res.json();
+                
+                const selects = [
+                    document.getElementById('quick-prodotto_id'),
+                    document.getElementById('mov-prodotto_id')
+                ];
+
+                selects.forEach(select => {
+                    if (!select) return;
+                    const currentVal = select.value;
+                    select.innerHTML = '<option value="">Seleziona prodotto...</option>' + 
+                        prodotti.map(p => `<option value="${p.id}">[${escapeHtml(p.sku)}] ${escapeHtml(p.nome)}</option>`).join('');
+                    select.value = currentVal;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Create Prodotto Handler
+        async function handleCreateProdotto(e) {
+            e.preventDefault();
+            const payload = {
+                sku: document.getElementById('prod-sku').value.trim(),
+                nome: document.getElementById('prod-nome').value.trim(),
+                descrizione: document.getElementById('prod-descrizione').value.trim(),
+                prezzo: parseFloat(document.getElementById('prod-prezzo').value),
+                scorta_minima: parseInt(document.getElementById('prod-scorta').value)
+            };
+
+            try {
+                const res = await fetch('/api/prodotti', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Errore creazione prodotto');
+
+                showAlert('Prodotto creato con successo!');
+                closeNewProductModal();
+                loadData();
+                if (!document.getElementById('tab-prodotti').classList.contains('hidden')) loadProdotti();
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        }
+
+        async function deleteProdotto(id) {
+            if (!confirm('Sei sicuro di voler eliminare questo prodotto? Tutti i movimenti associati verranno rimossi.')) return;
+            try {
+                const res = await fetch(`/api/prodotti/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Errore eliminazione');
+
+                showAlert('Prodotto eliminato correttamente');
+                loadData();
+                loadProdotti();
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        }
+
+        // 4. Movimenti Load & Management
+        async function loadMovimenti() {
+            try {
+                const res = await fetch('/api/movimenti');
+                if (!res.ok) throw new Error('Errore caricamento movimenti');
+                const movimenti = await res.json();
+
+                const tbody = document.getElementById('movimenti-table-body');
+                if (movimenti.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400">Nessun movimento registrato.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = movimenti.map(m => `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 text-slate-500">#${m.id}</td>
+                        <td class="py-3 px-4 text-slate-600 text-xs">${escapeHtml(m.created_at)}</td>
+                        <td class="py-3 px-4 font-mono font-semibold text-slate-700">${escapeHtml(m.sku)}</td>
+                        <td class="py-3 px-4 font-medium text-slate-900">${escapeHtml(m.prodotto_nome)}</td>
+                        <td class="py-3 px-4">
+                            ${m.tipo === 'CARICO' 
+                                ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800">CARICO</span>' 
+                                : '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800">SCARICO</span>'}
+                        </td>
+                        <td class="py-3 px-4 text-right font-bold text-slate-800">${m.tipo === 'CARICO' ? '+' : '-'}${m.quantita}</td>
+                        <td class="py-3 px-4 text-slate-500 text-xs">${escapeHtml(m.causale || '-')}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+                showAlert('Errore nel recupero dello storico movimenti', 'error');
+            }
+        }
+
+        async function handleCreateMovimento(e) {
+            e.preventDefault();
+            const payload = {
+                prodotto_id: parseInt(document.getElementById('mov-prodotto_id').value),
+                tipo: document.getElementById('mov-tipo').value,
+                quantita: parseInt(document.getElementById('mov-quantita').value),
+                causale: document.getElementById('mov-causale').value.trim()
+            };
+
+            await submitMovimento(payload, closeNewMovimentoModal);
+        }
+
+        async function handleQuickMovimento(e) {
+            e.preventDefault();
+            const payload = {
+                prodotto_id: parseInt(document.getElementById('quick-prodotto_id').value),
+                tipo: document.getElementById('quick-tipo').value,
+                quantita: parseInt(document.getElementById('quick-quantita').value),
+                causale: document.getElementById('quick-causale').value.trim()
+            };
+
+            await submitMovimento(payload, () => {
+                document.getElementById('quick-movimento-form').reset();
+            });
+        }
+
+        async function submitMovimento(payload, onSuccess) {
+            try {
+                const res = await fetch('/api/movimenti', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Errore registrazione movimento');
+
+                showAlert('Movimento registrato con successo!');
+                if (onSuccess) onSuccess();
+                loadData();
+                if (!document.getElementById('tab-movimenti').classList.contains('hidden')) loadMovimenti();
+                if (!document.getElementById('tab-giacenze').classList.contains('hidden')) loadGiacenze();
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        }
+
+        function quickActionModal(prodottoId, tipo) {
+            switchTab('dashboard');
+            document.getElementById('quick-prodotto_id').value = prodottoId;
+            document.getElementById('quick-tipo').value = tipo;
+            document.getElementById('quick-quantita').focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Modal Helpers
+        function openNewProductModal() {
+            document.getElementById('form-prodotto').reset();
+            document.getElementById('modal-prodotto').classList.remove('hidden');
+            document.getElementById('modal-prodotto').classList.add('flex');
+        }
+
+        function closeNewProductModal() {
+            document.getElementById('modal-prodotto').classList.remove('flex');
+            document.getElementById('modal-prodotto').classList.add('hidden');
+        }
+
+        function openNewMovimentoModal() {
+            document.getElementById('form-movimento').reset();
+            document.getElementById('modal-movimento').classList.remove('hidden');
+            document.getElementById('modal-movimento').classList.add('flex');
+        }
+
+        function closeNewMovimentoModal() {
+            document.getElementById('modal-movimento').classList.remove('flex');
+            document.getElementById('modal-movimento').classList.add('hidden');
+        }
+
+        // Security helper against XSS
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>
