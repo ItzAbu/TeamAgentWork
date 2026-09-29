@@ -200,3 +200,10 @@
 {"t": 1790676604.2, "k": "router", "model": "groq::qwen/qwen3.8-27b", "kind": "rate", "secs": 45, "msg": "Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3kzx43kexvafbnyvdhjzqdj` service tier `on_demand` on output tokens per minute (OTPM): Li"}
 {"t": 1790676635.9, "k": "router", "model": "github::openai/gpt-4o", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
 {"t": 1790676649.6, "k": "router", "model": "github::openai/o4-mini", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
+{"t": 1790676683.3, "k": "router", "model": "github::openai/gpt-4.1", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
+{"t": 1790676695.9, "k": "router", "model": "groq::qwen/qwen3.8-27b", "kind": "rate", "secs": 34, "msg": "Request too large for model `qwen/qwen3.8-27b` in organization `org_01m3kzx43kexvafbnyvdhjzqdj` service tier `on_demand` on output tokens per minute (OTPM): Lim"}
+{"t": 1790676710.3, "k": "router", "model": "github::openai/gpt-4o-mini", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
+{"t": 1790676712.3, "k": "router", "model": "github::deepseek/DeepSeek-R1", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
+{"t": 1790676731.0, "k": "router", "model": "github::openai/gpt-4o", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
+{"t": 1790676745.4, "k": "router", "model": "github::openai/o4-mini", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
+{"t": 1790676747.3, "k": "router", "model": "groq::qwen/qwen3.8-27b", "kind": "rate", "secs": 33, "msg": "Request too large for model `qwen/qwen3.8-27b` in organization `org_01m3kzx43kexvafbnyvdhjzqdj` service tier `on_demand` on output tokens per minute (OTPM): Lim"}
