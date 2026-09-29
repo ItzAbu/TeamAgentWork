@@ -216,3 +216,7 @@
 {"t": 1790676944.2, "k": "router", "model": "github::openai/gpt-4o", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
 {"t": 1790676946.2, "k": "router", "model": "github::openai/gpt-4.1", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
 {"t": 1790676957.2, "k": "router", "model": "github::openai/gpt-4o-mini", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
+{"t": 1790676961.2, "k": "router", "model": "github::deepseek/DeepSeek-R1", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
+{"t": 1790676968.9, "k": "router", "model": "groq::qwen/qwen3.8-27b", "kind": "rate", "secs": 32, "msg": "Request too large for model `qwen/qwen3.8-27b` in organization `org_01m3kzx43kexvafbnyvdhjzqdj` service tier `on_demand` on output tokens per minute (OTPM): Lim"}
+{"t": 1790676971.0, "k": "router", "model": "openrouter::poolside/laguna-s-2.1:free", "kind": "rate", "secs": 33, "msg": "Provider returned error"}
+{"t": 1790676986.4, "k": "router", "model": "openrouter::cohere/north-mini-code:free", "kind": "empty", "secs": 20, "msg": "risposta vuota (finish=error)"}
