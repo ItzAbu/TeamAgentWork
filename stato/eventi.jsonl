@@ -192,3 +192,11 @@
 {"t": 1790676289.3, "k": "router", "model": "github::openai/gpt-4o-mini", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
 {"t": 1790676313.2, "k": "router", "model": "github::openai/gpt-4o", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
 {"t": 1790676346.3, "k": "router", "model": "openrouter::cohere/north-mini-code:free", "kind": "empty", "secs": 60, "msg": "risposta vuota (finish=length)"}
+{"t": 1790676590.3, "k": "router", "model": "github::openai/gpt-4o", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
+{"t": 1790676592.3, "k": "router", "model": "github::openai/o4-mini", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
+{"t": 1790676594.3, "k": "router", "model": "github::openai/gpt-4.1", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
+{"t": 1790676596.3, "k": "router", "model": "github::openai/gpt-4.1", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
+{"t": 1790676598.5, "k": "router", "model": "groq::openai/gpt-oss-20b", "kind": "bad_request", "secs": 300, "msg": "Tool choice is none, but model called a tool"}
+{"t": 1790676604.2, "k": "router", "model": "groq::qwen/qwen3.8-27b", "kind": "rate", "secs": 45, "msg": "Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3kzx43kexvafbnyvdhjzqdj` service tier `on_demand` on output tokens per minute (OTPM): Li"}
+{"t": 1790676635.9, "k": "router", "model": "github::openai/gpt-4o", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
+{"t": 1790676649.6, "k": "router", "model": "github::openai/o4-mini", "kind": "transient", "secs": 30, "msg": "risposta non JSON"}
